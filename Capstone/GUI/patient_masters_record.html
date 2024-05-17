@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Masters Record</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Boxicons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --header-height: 3rem;
+            --nav-width: 68px;
+            --first-color: #052659;
+            --first-color-light: #AFA5D9;
+            --white-color: #F7F6FB;
+            --body-font: 'Nunito', sans-serif;
+            --normal-font-size: 1rem;
+            --z-fixed: 100;
+        }
+
+        *,
+        ::before,
+        ::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            position: relative;
+            margin: var(--header-height) 0 0 0;
+            padding: 0 1rem;
+            font-family: var(--body-font);
+            font-size: var(--normal-font-size);
+            transition: .5s;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .header {
+            width: 100%;
+            height: var(--header-height);
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem;
+            background-color: var(--white-color);
+            z-index: var(--z-fixed);
+            transition: .5s;
+        }
+
+        .header h3 {
+            margin: 0;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .header_toggle {
+            color: var(--first-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+
+        .l-navbar {
+            position: fixed;
+            top: 0;
+            right: -30%;
+            width: var(--nav-width);
+            height: 100vh;
+            background-color: var(--first-color);
+            padding: .5rem 1rem 0 0;
+            transition: .5s;
+            z-index: var(--z-fixed);
+        }
+
+        .nav {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .nav_logo,
+        .nav_link {
+            display: grid;
+            grid-template-columns: max-content max-content;
+            align-items: center;
+            column-gap: 1rem;
+            padding: .5rem 0 .5rem 1.5rem;
+        }
+
+        .nav_logo {
+            margin-bottom: 2rem;
+        }
+
+        .nav_logo-icon {
+            font-size: 1.25rem;
+            color: var(--white-color);
+        }
+
+        .nav_logo-name {
+            color: var(--white-color);
+            font-weight: 700;
+        }
+
+        .nav_link {
+            position: relative;
+            color: var(--white-color);
+            margin-bottom: 1.5rem;
+            white-space: nowrap;
+            padding-left: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .nav_link:hover {
+            color: var(--white-color);
+            background-color: var(--first-color-light);
+        }
+
+        .nav_icon {
+            font-size: 1.25rem;
+        }
+
+        .show {
+            right: 0;
+        }
+
+        .body-pd {
+            padding-left: calc(var(--nav-width) + 1rem);
+        }
+
+        .active {
+            color: var(--first-color-light);
+        }
+
+        .active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 2px;
+            height: 32px;
+            background-color: var(--first-color-light);
+        }
+
+        .height-100 {
+            height: 100vh;
+        }
+
+        @media screen and (min-width: 768px) {
+            body {
+                margin: calc(var(--header-height) + 1rem) 0 0 0;
+                padding-left: calc(var(--nav-width) + 2rem);
+            }
+
+            .header {
+                height: calc(var(--header-height) + 1rem);
+                padding: 0 2rem 0 calc(var(--nav-width) + 2rem);
+            }
+
+            .l-navbar {
+                left: 0;
+                padding: 1rem 1rem 0 0;
+            }
+
+            .show {
+                width: calc(var(--nav-width) + 156px);
+            }
+
+            .body-pd {
+                padding-left: calc(var(--nav-width) + 188px);
+            }
+        }
+
+        .modal-dialog {
+            position: fixed;
+            top: 0%;
+            left: 40%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+        }
+
+        .modal.fade.show {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 1);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .datatable-container {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body id="body-pd">
+<header class="header" id="header">
+    <div class="header_toggle">
+        <i class='bx bx-menu' id="header-toggle"></i>
+    </div>
+    <h3 class="text-center">Patient Masters Record</h3>
+</header>
+<div class="l-navbar" id="nav-bar">
+    <nav class="nav">
+        <div>
+            <a href="#" class="nav_logo">
+                <i class='bx bx-layer nav_logo-icon'></i>
+                <span class="nav_logo-name">DataVault</span>
+            </a>
+            <div class="nav_list">
+                <a href="clinic_admin.html" class="nav_link">
+                    <i class='bx bx-grid-alt nav_icon'></i>
+                    <span class="nav_name">Dashboard</span>
+                </a>
+                <a href="events_appointments.html" class="nav_link">
+                    <i class='bx bx-calendar nav_icon'></i>
+                    <span class="nav_name">Events &amp; Appointments</span>
+                </a>
+                <a href="account_management.html" class="nav_link">
+                    <i class='bx bx-user nav_icon'></i>
+                    <span class="nav_name">Account Management</span>
+                </a>
+                <a href="pmr.html" class="nav_link active">
+                    <i class='bx bx-book-reader nav_icon'></i>
+                    <span class="nav_name">Patient Masters Record</span>
+                </a>
+                <a href="daily_logs.html" class="nav_link">
+                    <i class='bx bx-book nav_icon'></i>
+                    <span class="nav_name">Daily Logs</span>
+                </a>
+                <a href="reports.html" class="nav_link">
+                    <i class='bx bx-bar-chart-alt-2 nav_icon'></i>
+                    <span class="nav_name">Reports</span>
+                </a>
+                <a href="inventory.html" class="nav_link">
+                    <i class='bx bx-archive nav_icon'></i>
+                    <span class="nav_name">Inventory</span>
+                </a>
+            </div>
+        </div>
+        <a href="#" class="nav_link">
+            <i class='bx bx-log-out nav_icon'></i>
+            <span class="nav_name">Sign Out</span>
+        </a>
+    </nav>
+</div>
+<!--Container Main start-->
+<div class="container-fluid height-100 bg-light">
+    <div class="d-flex justify-content-between align-items-center">
+        <h4>Patient Records</h4>
+        <div id="addPatientBtn" class="btn btn-primary">Add Patient</div>
+    </div>
+    <div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPatientModalLabel">Add Patient</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPatientForm">
+                        <div class="mb-3">
+                            <label for="patientLastname" class="form-label">Lastname</label>
+                            <input type="text" class="form-control" id="patientLastname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientFirstname" class="form-label">Firstname</label>
+                            <input type="text" class="form-control" id="patientFirstname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientAge" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="patientAge" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientGender" class="form-label">Gender</label>
+                            <select class="form-select" id="patientGender" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientBirthday" class="form-label">Birthday</label>
+                            <input type="date" class="form-control" id="patientBirthday" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientContactNumber" class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="patientContactNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="patientEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientEmergencyContactName" class="form-label">Emergency Contact Name</label>
+                            <input type="text" class="form-control" id="patientEmergencyContactName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientEmergencyContactNumber" class="form-label">Emergency Contact Number</label>
+                            <input type="text" class="form-control" id="patientEmergencyContactNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientEmergencyContactEmail" class="form-label">Emergency Contact Email</label>
+                            <input type="email" class="form-control" id="patientEmergencyContactEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientRelationToPatient" class="form-label">Relation to Patient</label>
+                            <input type="text" class="form-control" id="patientRelationToPatient" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Patient</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editPatientModal" tabindex="-1" aria-labelledby="editPatientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPatientModalLabel">Edit Patient</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPatientForm">
+                        <input type="hidden" id="editPatientId">
+                        <div class="mb-3">
+                            <label for="editPatientLastname" class="form-label">Lastname</label>
+                            <input type="text" class="form-control" id="editPatientLastname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientFirstname" class="form-label">Firstname</label>
+                            <input type="text" class="form-control" id="editPatientFirstname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientAge" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="editPatientAge" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientGender" class="form-label">Gender</label>
+                            <select class="form-select" id="editPatientGender" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientBirthday" class="form-label">Birthday</label>
+                            <input type="date" class="form-control" id="editPatientBirthday" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientContactNumber" class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="editPatientContactNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editPatientEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientEmergencyContactName" class="form-label">Emergency Contact Name</label>
+                            <input type="text" class="form-control" id="editPatientEmergencyContactName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientEmergencyContactNumber" class="form-label">Emergency Contact Number</label>
+                            <input type="text" class="form-control" id="editPatientEmergencyContactNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientEmergencyContactEmail" class="form-label">Emergency Contact Email</label>
+                            <input type="email" class="form-control" id="editPatientEmergencyContactEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientRelationToPatient" class="form-label">Relation to Patient</label>
+                            <input type="text" class="form-control" id="editPatientRelationToPatient" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="datatable-container">
+        <table id="patientTable" class="display">
+            <thead>
+                <tr>
+                    <th>Lastname</th>
+                    <th>Firstname</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Birthday</th>
+                    <th>Contact Number</th>
+                    <th>Email</th>
+                    <th>Emergency Contact Name</th>
+                    <th>Emergency Contact Number</th>
+                    <th>Emergency Contact Email</th>
+                    <th>Relation to Patient</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="patientTableBody">
+                <!-- Dynamic rows will be added here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+<!--Container Main end-->
+
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/2.0.7/js/dataTables.min.js"></script>
+<!-- jQuery
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/2.0.7/js/jquery.dataTables.min.js"></script>
+--->
+<!-- Bootstrap Bundle with Popper -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Boxicons -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/boxicons@latest/js/boxicons.min.js"></script>
+<!-- DataTables -->
+<!-- Custom Script -->
+<script type="text/javascript">
+            //const patientTable = $('#patientTable').DataTable();
+
+  $(document).ready(function() {
+        const patientTable = $('#patientTable').DataTable();
+
+        $('#addPatientBtn').on('click', function() {
+            $('#addPatientModal').modal('show');
+        });
+
+
+        $('#addPatientForm').on('submit', function(event) {
+            event.preventDefault();
+            const patientLastname = $('#patientLastname').val();
+            const patientFirstname = $('#patientFirstname').val();
+            const patientAge = $('#patientAge').val();
+            const patientGender = $('#patientGender').val();
+            const patientBirthday = $('#patientBirthday').val();
+            const patientContactNumber = $('#patientContactNumber').val();
+            const patientEmail = $('#patientEmail').val();
+            const patientEmergencyContactName = $('#patientEmergencyContactName').val();
+            const patientEmergencyContactNumber = $('#patientEmergencyContactNumber').val();
+            const patientEmergencyContactEmail = $('#patientEmergencyContactEmail').val();
+            const patientRelationToPatient = $('#patientRelationToPatient').val();
+
+            const rowNode = patientTable.row.add([
+                patientLastname,
+                patientFirstname,
+                patientAge,
+                patientGender,
+                patientBirthday,
+                patientContactNumber,
+                patientEmail,
+                patientEmergencyContactName,
+                patientEmergencyContactNumber,
+                patientEmergencyContactEmail,
+                patientRelationToPatient,
+                `<button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                 <button class="btn btn-danger btn-sm delete-btn">Delete</button>`
+            ]).draw().node();
+
+            $(rowNode).find('.edit-btn').on('click', function() {
+                const data = patientTable.row($(this).parents('tr')).data();
+                $('#editPatientId').val(patientTable.row($(this).parents('tr')).index());
+                $('#editPatientLastname').val(data[0]);
+                $('#editPatientFirstname').val(data[1]);
+                $('#editPatientAge').val(data[2]);
+                $('#editPatientGender').val(data[3]);
+                $('#editPatientBirthday').val(data[4]);
+                $('#editPatientContactNumber').val(data[5]);
+                $('#editPatientEmail').val(data[6]);
+                $('#editPatientEmergencyContactName').val(data[7]);
+                $('#editPatientEmergencyContactNumber').val(data[8]);
+                $('#editPatientEmergencyContactEmail').val(data[9]);
+                $('#editPatientRelationToPatient').val(data[10]);
+                $('#editPatientModal').modal('show');
+            });
+
+            $(rowNode).find('.delete-btn').on('click', function() {
+                patientTable.row($(this).parents('tr')).remove().draw();
+            });
+
+            $('#addPatientModal').modal('hide');
+            $('#addPatientForm')[0].reset();
+        });
+
+        $('#editPatientForm').on('submit', function(event) {
+            event.preventDefault();
+            const rowIndex = $('#editPatientId').val();
+            const patientLastname = $('#editPatientLastname').val();
+            const patientFirstname = $('#editPatientFirstname').val();
+            const patientAge = $('#editPatientAge').val();
+            const patientGender = $('#editPatientGender').val();
+            const patientBirthday = $('#editPatientBirthday').val();
+            const patientContactNumber = $('#editPatientContactNumber').val();
+            const patientEmail = $('#editPatientEmail').val();
+            const patientEmergencyContactName = $('#editPatientEmergencyContactName').val();
+            const patientEmergencyContactNumber = $('#editPatientEmergencyContactNumber').val();
+            const patientEmergencyContactEmail = $('#editPatientEmergencyContactEmail').val();
+            const patientRelationToPatient = $('#editPatientRelationToPatient').val();
+
+            patientTable.row(rowIndex).data([
+                patientLastname,
+                patientFirstname,
+                patientAge,
+                patientGender,
+                patientBirthday,
+                patientContactNumber,
+                patientEmail,
+                patientEmergencyContactName,
+                patientEmergencyContactNumber,
+                patientEmergencyContactEmail,
+                patientRelationToPatient,
+                `<button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                 <button class="btn btn-danger btn-sm delete-btn">Delete</button>`
+            ]).draw();
+
+            const rowNode = patientTable.row(rowIndex).node();
+            $(rowNode).find('.edit-btn').on('click', function() {
+                const data = patientTable.row($(this).parents('tr')).data();
+                $('#editPatientId').val(patientTable.row($(this).parents('tr')).index());
+                $('#editPatientLastname').val(data[0]);
+                $('#editPatientFirstname').val(data[1]);
+                $('#editPatientAge').val(data[2]);
+                $('#editPatientGender').val(data[3]);
+                $('#editPatientBirthday').val(data[4]);
+                $('#editPatientContactNumber').val(data[5]);
+                $('#editPatientEmail').val(data[6]);
+                $('#editPatientEmergencyContactName').val(data[7]);
+                $('#editPatientEmergencyContactNumber').val(data[8]);
+                $('#editPatientEmergencyContactEmail').val(data[9]);
+                $('#editPatientRelationToPatient').val(data[10]);
+                $('#editPatientModal').modal('show');
+            });
+
+            $(rowNode).find('.delete-btn').on('click', function() {
+                patientTable.row($(this).parents('tr')).remove().draw();
+            });
+
+            $('#editPatientModal').modal('hide');
+            $('#editPatientForm')[0].reset();
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+        const showNavbar = (toggleId, navId, bodyId, headerId) => {
+            const toggle = document.getElementById(toggleId),
+                nav = document.getElementById(navId),
+                bodypd = document.getElementById(bodyId),
+                headerpd = document.getElementById(headerId)
+
+            if (toggle && nav && bodypd && headerpd) {
+                toggle.addEventListener('click', () => {
+                    nav.classList.toggle('show')
+                    toggle.classList.toggle('bx-x')
+                    bodypd.classList.toggle('body-pd')
+                    headerpd.classList.toggle('body-pd')
+                })
+            }
+        }
+        showNavbar('header-toggle', 'nav-bar', 'body-pd', 'header')
+
+        const linkColor = document.querySelectorAll('.nav_link')
+
+        function colorLink() {
+            if (linkColor) {
+                linkColor.forEach(l => l.classList.remove('active'))
+                this.classList.add('active')
+            }
+        }
+        linkColor.forEach(l => l.addEventListener('click', colorLink))
+    });
+</script>
+</body>
+</html>
